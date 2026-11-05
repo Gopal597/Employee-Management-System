@@ -1,0 +1,12 @@
+const express = require("express");
+const Route = express.Router();
+const Admincontroller = require("../controller/admin.controller");
+const Middleman = require("../middleware/auth");
+Route.post("/register", Admincontroller.AdminRegister);
+// Route.post("/employee/register", Admincontroller.EmployeeRegister);
+Route.post("/login", Admincontroller.AdminLogin);
+Route.post("/create-employee", Middleman, Admincontroller.CreateEmployee);
+Route.get("/get-employees", Admincontroller.GetallEmployee);
+Route.delete("/delete-employee/:id", Admincontroller.DeleteEmployeedata);
+Route.get("/dashboard", Middleman, Admincontroller.DashBoard);
+module.exports = Route;
