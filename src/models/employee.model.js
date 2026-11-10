@@ -15,6 +15,10 @@ const EmployeeSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
     },
+    phone: {
+      type: String,
+      required: [true, 'Password is required'],
+    },
     role: {
       type: String,
       default: 'employee',

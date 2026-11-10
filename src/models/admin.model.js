@@ -15,6 +15,10 @@ const adminSchema = new mongoose.Schema(
       enum: ["admin", "employee"],
       default: "admin",
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

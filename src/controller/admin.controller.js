@@ -1,5 +1,8 @@
 const Admin = require("../models/admin.model");
 const Employee = require("../models/employee.model");
+const Otp = require("../models/otpmodel");
+const transpoter = require("../config/emailconfig");
+const VerifiedMail = require("../utils/sendMail");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 class Admincontroller {
@@ -14,21 +17,13 @@ class Admincontroller {
         });
       }
       const emailUser = await Admin.findOne({ email });
-      if (emailUser) {
-        return res.status(400).json({
-          success: false,
-          message: "Admin already exists",
-        });
-      }
-      // if (!req.admin || req.admin.role !== "admin") {
-      //   return res.status(403).json({
+      // if (emailUser) {
+      //   return res.status(400).json({
       //     success: false,
-      //     message: [
-      //       "Unauthorized: Registration is closed. Anybody could not register.",
-      //       "Only Register Admin",
-      //     ],
+      //     message: "Admin already exists",
       //   });
       // }
+
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
       const AdminData = new Admin({
@@ -37,9 +32,13 @@ class Admincontroller {
         password: hashPassword,
       });
       const data = await AdminData.save();
+      await VerifiedMail(req, data);
+console.log(req.body)
+      await VerifiedMail(req, data);
       return res.status(200).json({
         success: true,
-        message: "Admin Register Successfully",
+        message:
+          "Admin Register Successfully and Otp sent to mail Verification",
         data,
       });
     } catch (error) {
@@ -66,6 +65,13 @@ class Admincontroller {
           message: "Invalid Password",
         });
       }
+      if (!admin.isVerified) {
+        return res.status(400).json({
+          success: false,
+          message: "Please Vefify your email",
+        });
+      }
+
       const createToken = jwt.sign(
         {
           id: admin._id,
@@ -94,20 +100,20 @@ class Admincontroller {
       });
     }
   }
-  async DashBoard(req, res) {
-    try {
-      return res.status(200).json({
-        success: true,
-        message: "DashBorad Show Successfully",
-        admin: req.admin,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
+  // async DashBoard(req, res) {
+  //   try {
+  //     return res.status(200).json({
+  //       success: true,
+  //       message: "DashBorad Show Successfully",
+  //       admin: req.admin,
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: error.message,
+  //     });
+  //   }
+  // }
   // async EmployeeRegister(req, res) {
   //   console.log(req.body);
   //   try {
@@ -156,8 +162,8 @@ class Admincontroller {
   // }
   async CreateEmployee(req, res) {
     try {
-      const { name, email, password } = req.body;
-      if (!name || !email || !password) {
+      const { name, email, password, phone } = req.body;
+      if (!name || !email || !password || !phone) {
         return res.status(402).json({
           success: false,
           message: "All fileds are required",
@@ -175,6 +181,7 @@ class Admincontroller {
       const employeedata = new Employee({
         name,
         email,
+        phone,
         password: randomDigits,
       });
       const employeeinfo = await employeedata.save();
@@ -185,6 +192,7 @@ class Admincontroller {
           id: employeeinfo._id,
           name: employeeinfo.name,
           email: employeeinfo.email,
+          phone: employeeinfo.phone,
         },
         TemporaryPass: randomDigits,
       });
@@ -199,7 +207,7 @@ class Admincontroller {
   async GetallEmployee(req, res) {
     try {
       const getall = await Employee.find();
-      console.log(getall);
+      // console.log(getall);
       return res.status(200).json({
         success: true,
         message: "Getall Employee data Successfully",

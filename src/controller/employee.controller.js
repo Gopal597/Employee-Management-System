@@ -96,6 +96,7 @@ class EmployeeController {
           id: employee._id,
           name: employee.name,
           email: employee.email,
+          phone: employee.phone,
           role: employee.role,
         },
         process.env.JWT_EMPLOYEE_SECRET_KEY,
@@ -109,6 +110,7 @@ class EmployeeController {
           id: employee._id,
           name: employee.name,
           email: employee.email,
+          phone: employee.phone,
           LastLoging: employee.lastLogin
             ? employee.lastLogin.toLocaleString()
             : null,
@@ -184,6 +186,7 @@ class EmployeeController {
           name: employee.name,
           email: employee.email,
           role: employee.role,
+          phone: employee.phone,
 
           accountStatus: employee.isActive === true ? "Active" : "UnActive",
 
